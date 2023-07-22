@@ -66,7 +66,7 @@ function MovieCard({ apiUrl }) {
                                     <img src={`https://image.tmdb.org/t/p/original${item.poster_path}`} alt="" />
                                     <div className="hover-overlay"></div>
                                     <div className="hover-2-content px-5 py-4">
-                                        <p className="hover-2-description text-uppercase mb-0">{!item.title ? item.name : item.title }b<br /> {item.vote_average}&#9733;</p>
+                                        <p className="hover-2-description text-uppercase mb-0">{!item.title ? item.name : item.title }<br /> {item.vote_average}&#9733;</p>
                                     </div>
                                 </div>
                             </Link>
