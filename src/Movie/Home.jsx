@@ -1,5 +1,4 @@
 import React from 'react';
-import { Container } from 'react-bootstrap';
 import Card from './navbar/MovieCard';
 import Caraousel from './Caraousel';
 
@@ -20,7 +19,7 @@ function Home() {
 
         <Card key="upcoming" apiUrl={{ url: "https://api.themoviedb.org/3/movie/upcoming?api_key=d8d56359455a8c1f58621b1cc4c24eef&page=3", head: "Upcoming" }} />
         <Card key="popular" apiUrl={{ url: "https://api.themoviedb.org/3/movie/popular?api_key=d8d56359455a8c1f58621b1cc4c24eef", head: "Popular" }} />
-        <Card key="tv" apiUrl={{ url: "https://api.themoviedb.org/3/discover/tv?api_key=d8d56359455a8c1f58621b1cc4c24eef", head: " TV shows" }} />
+        <Card key="tv" apiUrl={{ url: "https://api.themoviedb.org/3/discover/tv?api_key=d8d56359455a8c1f58621b1cc4c24eef", head: " TV " }} />
       </div>
 
     </div>
