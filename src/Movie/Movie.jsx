@@ -34,21 +34,12 @@ function Movie() {
     const { id } = useParams()
 
 
-   
-
-
-
-
-
-
-
-
     useEffect(() => {
         fatchMovie();
         MovieTrailer()
         MovieCast()
 
-    });
+    },[]);
 
 
     const fatchMovie = async () => {
@@ -255,12 +246,14 @@ function Movie() {
                     className='mb-3 justify-center '
                 >
                     <Tab id='tab1' eventKey="Related" title="Related" >
-                        <MovieCard
+                    
+                           <MovieCard
                             apiUrl={{
                                 url: `https://api.themoviedb.org/3/movie/${id}/recommendations?api_key=d8d56359455a8c1f58621b1cc4c24eef`,
-                                head: ""
+                                head: "Related Movies"
                             }}
                         />
+                      
                     </Tab>
 
                     <Tab id='tab2' eventKey="Details" title="More Details" >
@@ -279,7 +272,7 @@ function Movie() {
                                 <p className='flex'>
                                     {movieDetail?.production_countries?.map((county) => {
                                         return (
-                                            (<pre>{county.name}, </pre>)
+                                            (<div>{county.name}, </div>)
                                         )
                                     })}
 
@@ -287,7 +280,7 @@ function Movie() {
                             </li>
                             <li>
                                 <h5>Spoken Languages</h5>
-                                <p>{movieDetail?.spoken_languages?.map((audio) => (<pre>{audio.english_name}</pre>))}</p>
+                                <p>{movieDetail?.spoken_languages?.map((audio) => (<div>{audio.english_name}</div>))}</p>
                             </li>
                             <li>
                                 <h5>Rvenue</h5>

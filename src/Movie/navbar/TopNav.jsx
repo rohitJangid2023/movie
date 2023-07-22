@@ -2,7 +2,6 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { Navbar, Container, Nav, Offcanvas } from 'react-bootstrap';
-import { Combobox, Transition } from '@headlessui/react';
 import './Search.css'
 import { Link } from 'react-router-dom';
 import icon from '../../Assets/img/iconMovie.png'
@@ -10,16 +9,7 @@ import icon from '../../Assets/img/iconMovie.png'
 
 
 
-const people = [
-  { id: 1, name: 'Wade Cooper' },
-  { id: 2, name: 'Arlene Mccoy' },
-  { id: 3, name: 'Devon Webb' },
-  { id: 4, name: 'Tom Cook' },
-  { id: 5, name: 'Tanya Fox' },
-  { id: 6, name: 'Hellen Schmidt' },
-  { id: 7, name: 'Hellen ff' },
-  { id: 8, name: 'Hellen eeeee' },
-]
+
 const apiKey = "d8d56359455a8c1f58621b1cc4c24eef"
 
 
@@ -120,13 +110,6 @@ function TopNav() {
     }
 
   };
-  const handleClearInput = (e) => {
-    e.preventDefault();
-    setQuery('');
-    setSuggestions([])
-  };
-
-
 
   return (
     <>

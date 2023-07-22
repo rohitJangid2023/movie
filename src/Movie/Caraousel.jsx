@@ -13,12 +13,7 @@ function Caraousel({typeApi}) {
 
   console.log(data.genre_ids)
 
-  useEffect(() => {
-    fetchData();
-    getGeneres();
-    
-  }, []);
-
+  
   const fetchData = async () => {
     try {
       const response = await fetch(typeApi);
@@ -45,6 +40,12 @@ function Caraousel({typeApi}) {
   const toggleExpanded = () => {
     setExpanded(!expanded);
   };
+
+  useEffect(() => {
+    fetchData();
+    getGeneres();
+    
+  }, []);
 
 
   return (
