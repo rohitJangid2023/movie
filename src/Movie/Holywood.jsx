@@ -15,7 +15,7 @@ function Holywood() {
   return (
     <div >
 
-      <Caraousel typeApi={`https://api.themoviedb.org/3/movie/popular?api_key=${api_key}`} />
+<Caraousel type={`https://api.themoviedb.org/3/movie/popular?api_key=${api_key}&&with_original_language=en&with_keywords=hindi`} />
       <Container fluid className='px-5'>
         
       <Card apiUrl={{url:`https://api.themoviedb.org/3/movie/popular?api_key=${api_key}&page=3`, head:"Popular"}} />

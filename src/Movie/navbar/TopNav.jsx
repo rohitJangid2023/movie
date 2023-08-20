@@ -125,18 +125,18 @@ function TopNav() {
               </Navbar.Brand>
             </Link>
             <form id='movieSearch' className='relative' >
-            <div>
-              <input type="search"
-                value={query}
-                placeholder='Search Movie....'
-                onChange={handleInputChange}
-                className='px-2 text-white bg-gradient-to-r from-red-600 to-transparent bg-transparent rounded-sm
+              <div>
+                <input type="search"
+                  value={query}
+                  placeholder='Search Movie....'
+                  onChange={handleInputChange}
+                  className='px-2 text-white bg-gradient-to-r from-red-600 to-transparent bg-transparent rounded-sm
                 w-[20rem] max-w-[9.5rem] sm:max-w-[20rem] md:max-w-[20rem] xl:max-w-[20rem] 2xl:max-w-[20rem]'
-              />
-            <FontAwesomeIcon className='ms-2' icon={faMagnifyingGlass} />
+                />
+                <FontAwesomeIcon className='ms-2' icon={faMagnifyingGlass} />
 
-            </div>
-             
+              </div>
+
               <div className='absolute ' >{renderSuggestions()}</div>
             </form>
 
@@ -152,16 +152,18 @@ function TopNav() {
             >
               <Offcanvas.Header closeButton>
                 <Offcanvas.Title >
-                   
-                  <Link to="/tv" className='block' >TV</Link>
-              
-                  <Link to="/bolywood" className='block' >Bolywood</Link>
-                  <Link to="/holywood" className='block' >Holywood</Link>
-                  <Link to="/south_indian_movies" className='block' >South Indian</Link>
+
+
+
 
                 </Offcanvas.Title>
               </Offcanvas.Header>
+              <Offcanvas.Body className='relative'>
 
+                <Link to="/bolywood" className='block text-red-500 span' >BOLLYWOOD</Link>
+                <Link to="/holywood" className='block text-red-500 span2' >HOLLYWOOD</Link>
+
+              </Offcanvas.Body>
             </Navbar.Offcanvas>
           </Container>
         </Navbar>
