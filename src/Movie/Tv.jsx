@@ -1,30 +1,13 @@
-import React from 'react';
-import { Container } from 'react-bootstrap';
-import Card from './navbar/MovieCard';
-import { useParams } from 'react-router-dom';
+import React from 'react'
+import Home from './Home'
+import { useParams } from 'react-router-dom'
 
+function Tv() {
 
-
-
-
-function Tn() {
-
-const {type} = useParams()
-
-console.log(type)
+  const {type} = useParams()
   return (
-    <div >
-
-      {/* <Caraousel typeApi={`https://api.themoviedb.org/3/movie/${type}?api_key=${api_key}&&with_original_language=en&with_keywords=hindi`} /> */}
-      <Container fluid className='px-5'>
-        
-      <Card apiUrl={{url:"https://api.themoviedb.org/3/movie/upcoming?api_key=d8d56359455a8c1f58621b1cc4c24eef&page=3", head:"Hindi"}} />
-      <Card apiUrl={{url:"https://api.themoviedb.org/3/movie/popular?api_key=d8d56359455a8c1f58621b1cc4c24eef", head:"english"}} />
-        <Card apiUrl={{url:"https://api.themoviedb.org/3/discover/tv?api_key=d8d56359455a8c1f58621b1cc4c24eef", head:"Hindi"}} />  
-      </Container>
-
-    </div>
+    <Home type={type}/>
   )
 }
 
-export default Tn
+export default Tv

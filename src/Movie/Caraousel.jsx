@@ -5,40 +5,16 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-const apiKey = "d8d56359455a8c1f58621b1cc4c24eef";
-const mUrl = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&&with_original_language=en&with_keywords=hindi`;
-const gUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${apiKey}`
-function Caraousel({type}) {
+function Caraousel({ apiUrl }) {
 
   const [deta, setData] = useState([]);
-  const [gen, setGener] = useState([]);
-  const [genIDs, setID] = useState([]);
-  const [expanded, setExpanded] = useState(false);
-
-  console.log(genIDs)
-
+  const [expanded, setExpanded] = useState(true);
 
   const getMovieData = async () => {
     try {
-      const datas = await axios.get(type);
+      const datas = await axios.get(apiUrl);
       const resultedData = datas.data.results;
       setData(resultedData);
-
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-
-
-  const getGeners = async () => {
-    try {
-      const gdatas = await axios.get(gUrl);
-      const generData = gdatas.data.genres;
-      setGener(generData);
-
-
     } catch (error) {
       console.log(error)
     }
@@ -46,8 +22,8 @@ function Caraousel({type}) {
 
   useEffect(() => {
     getMovieData();
-    getGeners();
-  }, [])
+  },[])
+
 
   // read more
   const toggleExpanded = () => {
@@ -56,14 +32,14 @@ function Caraousel({type}) {
 
 
   return (
-    <header className=' w-full top-0 relative z-0'>
+    <header className='relative top-0 z-0 w-full '>
       <Carousel fade className=''>
         {
           deta.map((movie) => (
             <Carousel.Item className='max-h-[100vh] h-[100vh] '>
               <div className="gradient-overlay"></div>
               <img
-                className="h-screen object-cover w-full image"
+                className="object-cover w-full h-screen image"
                 src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
                 alt="First slide"
               />
@@ -71,21 +47,21 @@ function Caraousel({type}) {
               <Carousel.Caption className='w-full !left-0 anim2' >
                 <Container className='text-left '>
                   <div className='max-w-xl' >
-                    <h1 className='me-auto'>{movie.title}</h1>
-                    <p className='text-yellow-600 flex' >{movie.original_language}
+                    <h1 className='me-auto'>{!movie.title ? movie.name : movie.title }</h1>
+                    <p className='flex text-yellow-600' >{movie.original_language + movie.media_type}
 
                     </p>
-                    <p id='rating' >{movie.vote_average}
-                      <FontAwesomeIcon icon={faStar} /><span className='bg-yellow-400 text-black font-black p-1 rounded-lg mx-3' >IMDb</span></p>
+                    <p id='rating' >{Math.trunc(movie.vote_average)}
+                      <FontAwesomeIcon icon={faStar} /><span className='p-1 mx-3 font-black text-black bg-yellow-400 rounded-lg' >IMDb</span></p>
                     <p>{movie.status}</p>
-                    <p> {expanded ? movie.overview : `${movie.overview.slice(0, 200)}...`}
-                      <button className='backdrop-blur-sm bg-white/10 rounded-md' onClick={toggleExpanded}>
-                        {expanded ? 'Read Less' : 'Read More'}
+                    <p> {expanded ? `${movie.overview.slice(0, 200)}...` : movie.overview}
+                      <button className='px-2 rounded-md backdrop-blur-sm bg-white/10 ms-2' onClick={toggleExpanded}>
+                        {expanded ? 'Read More' : 'Read less'}
                       </button></p>
                     <p>{movie.release_date}</p>
                   </div>
-                  <div className='grid gap-2 grid-cols-3 mb-3 max-w-xl'>
-                    <Link to={`/movie/${movie.id}`}>
+                  <div className='grid max-w-xl grid-cols-3 gap-2 mb-3'>
+                    <Link to={`/${movie.media_type}/${movie.id}`}>
                       <button className='button'>
                         More Info
                       </button>
