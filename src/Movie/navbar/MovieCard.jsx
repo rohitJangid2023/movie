@@ -3,9 +3,7 @@ import './Style.css'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { Link } from 'react-router-dom';
-
-const totalPages = 3
-
+import axios from 'axios';
 
 const responsive = {
     superLargeDesktop: {
@@ -19,7 +17,8 @@ const responsive = {
     },
     tablet: {
         breakpoint: { max: 1024, min: 464 },
-        items:3    },
+        items: 3
+    },
     mobile: {
         breakpoint: { max: 464, min: 0 },
         items: 3
@@ -27,46 +26,44 @@ const responsive = {
 };
 
 
-function MovieCard({ apiUrl }) {
+function MovieCard({ apiUrl, catagory }) {
     const [data, setData] = useState([]);
 
     const fetchData = async () => {
         try {
-            const fetchPromises = [];
-            for (let page = 1; page <= totalPages; page++) {
-                fetchPromises.push(fetch(`${apiUrl.url}&page=${page}`));
-            }
-            const responses = await Promise.all(fetchPromises);
-            const jsonData = await Promise.all(responses.map((response) => response.json()));
-            const accumulatedData = jsonData.reduce((acc, curr) => acc.concat(curr.results), []);
-            setData(accumulatedData);
+            const res = await axios.get(apiUrl.url);
+            const response = res.data.results;
+            setData(response)
         } catch (error) {
-            console.error('Error fetching data', error);
+            console.error('Error fetching data');
         }
     };
 
     useEffect(() => {
         fetchData();
-    });
-    
+    }, []);
+
+
     const scroll = () => {
-          window.scrollY({top: 0})
+        window.scrollY({ top: 0 })
     }
+
+
     return (
 
         <div className='my-2' id='card' >
-            <h5 className='text-white mt-5 uppercase ' >{apiUrl.head}</h5>
+            <h5 className='mt-5 text-white uppercase ' >{apiUrl.head}</h5>
             <hr className='red' />
             <Carousel responsive={responsive} >
                 {
                     data.map((item, i) => {
                         return (<>
-                            <Link onClick={scroll} key={i} to={`/movie/${item.id}`}>
-                                <div  className="hover hover-2 text-white rounded mx-1">
-                                    <img src={`https://image.tmdb.org/t/p/original${item.poster_path}`} alt="" />
+                            <Link onClick={scroll} key={i} to={`/${!catagory ? item.media_type : catagory}/${item.id}`}>
+                                <div className="mx-1 text-white rounded hover hover-2">
+                                    <img src={`https://image.tmdb.org/t/p/original${item.poster_path}` } alt="" />
                                     <div className="hover-overlay"></div>
-                                    <div className="hover-2-content px-5 py-4">
-                                        <p className="hover-2-description text-uppercase mb-0">{!item.title ? item.name : item.title }<br /> {item.vote_average}&#9733;</p>
+                                    <div className="px-5 py-4 hover-2-content">
+                                        <p className="mb-0 hover-2-description text-uppercase">{!item.title ? item.name : item.title} <br /> {Math.round(item.vote_average)}&#9733;</p>
                                     </div>
                                 </div>
                             </Link>

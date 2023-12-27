@@ -8,19 +8,20 @@ const api_key = "d8d56359455a8c1f58621b1cc4c24eef"
 
 
 
-function Home() {
+function Home({type}) {
 
   return (
     <div >
       <Helmet>
-        <title>{`Home`}</title>
+        <title>{type || "all movies and shows"}</title>
       </Helmet>
-      <Caraousel type={`https://api.themoviedb.org/3/movie/popular?api_key=${api_key}&&with_original_language=en&with_keywords=hindi`} />
+      <Caraousel apiUrl={`https://api.themoviedb.org/3/trending/${type || "all"}/day?api_key=${api_key}`} />
       <div className='px-3'>
 
-        <Card key="upcoming" apiUrl={{ url: "https://api.themoviedb.org/3/movie/upcoming?api_key=d8d56359455a8c1f58621b1cc4c24eef&page=3", head: "Upcoming" }} />
-        <Card key="popular" apiUrl={{ url: "https://api.themoviedb.org/3/movie/popular?api_key=d8d56359455a8c1f58621b1cc4c24eef", head: "Popular" }} />
-        <Card key="tv" apiUrl={{ url: "https://api.themoviedb.org/3/discover/tv?api_key=d8d56359455a8c1f58621b1cc4c24eef", head: " TV " }} />
+        <Card key="trnding" apiUrl={{ url: `https://api.themoviedb.org/3/trending/${type || "all"}/day?api_key=${api_key}`, head: "Trending Today" }} />
+        <Card key="trnding" catagory={type} apiUrl={{ url: `https://api.themoviedb.org/3/trending/${type || "all"}/week?api_key=${api_key}`, head: "Trending in Weak" }} />
+        <Card key="top_rated" catagory={type} apiUrl={{ url: `https://api.themoviedb.org/3/${type || "tv"}/top_rated?api_key=${api_key}`, head: `Top Rated ${type || "tv shows"}` }} />
+        <Card key="popular" catagory={type} apiUrl={{ url: `https://api.themoviedb.org/3/${type || "movie"}/popular?api_key=${api_key}`, head: `Popular ${type || "movies"}` }} />
       </div>
 
     </div>

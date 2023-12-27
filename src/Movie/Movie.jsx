@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Button, Modal, Tabs, Tab } from 'react-bootstrap';
+import { Container, Card, Button, Modal, Tabs, Tab, Placeholder } from 'react-bootstrap';
 import MovieCard from './navbar/MovieCard';
 import { Link, useParams } from 'react-router-dom';
 import Carousel from 'react-multi-carousel';
@@ -24,19 +24,22 @@ const Download = [
 
 
 function Movie() {
-    const { id } = useParams()
+    const { id } = useParams();
+    const { catagory } = useParams();
 
-    const movieData = `https://api.themoviedb.org/3/movie/${id}?api_key=d8d56359455a8c1f58621b1cc4c24eef`;
-    const url2 = `https://api.themoviedb.org/3/movie/${id}/videos?api_key=d8d56359455a8c1f58621b1cc4c24eef`;
-    const castData = `https://api.themoviedb.org/3/movie/${id}/credits?api_key=d8d56359455a8c1f58621b1cc4c24eef`
 
+
+
+    const movieData = `https://api.themoviedb.org/3/${catagory}/${id}?api_key=d8d56359455a8c1f58621b1cc4c24eef`;
+    const url2 = `https://api.themoviedb.org/3/${catagory}/${id}/videos?api_key=d8d56359455a8c1f58621b1cc4c24eef`;
+    const castData = `https://api.themoviedb.org/3/${catagory}/${id}/credits?api_key=d8d56359455a8c1f58621b1cc4c24eef`;
 
     const [movieDetail, setMovie] = useState([]);
     const [trailer, setTrailer] = useState([])
-    const [cast, setCast] = useState([])
+    const [movieCast, setCast] = useState([]);
     const [expanded, setExpanded] = useState(true);
+    const [over, setOver] = useState("")
 
-    console.log(trailer)
     const [show, setShow] = useState(false);
     const [fullscreen, setFullscreen] = useState(true);
     function handleShow(breakpoint) {
@@ -48,49 +51,56 @@ function Movie() {
 
 
 
-
-    const fatchMovie = async () => {
+    const allData = async () => {
         try {
-            const response = await axios.get(movieData);
-            const detas = response.data
-            setMovie(detas);
+            const res1 = await axios.get(movieData);
+            const res2 = await axios.get(url2);
+            const res3 = await axios.get(castData);
+
+
+
+            const data1 = await Promise.all([res1, res2, res3]);
+
+            setMovie(data1[0].data);
+            setTrailer(data1[1].data.results.find(
+                (video) => (video.type === "Trailer" && video.site === 'YouTube') || (video.type === "Opening Credits" && video.site === 'YouTube')
+            ).key);
+
+            // Extracting the cast data specifically
+            setCast(data1[2].data.cast); // Assuming the cast data is in the 'cast' property of the response
+
+
 
         } catch (error) {
-            console.error('Error fetching data', error);
+            console.log("error");
         }
     };
 
 
-
-    const MovieTrailer = async () => {
-        try {
-            const response = await axios.get(url2);
-
-            const trailer = response.data.results.find(
-                (video) => video.type === "Trailer" && video.site === 'YouTube'
-            )
-            setTrailer(trailer.key)
-
-        } catch (error) {
-            console.error('Error fetching data', error);
-        }
+    // read more
+    const toggleExpanded = () => {
+        setExpanded(!expanded);
     };
 
-    // cast 
-    const MovieCast = async () => {
-        try {
-            const response = await axios.get(castData);
-            const detas = response.data.cast;
-            setCast(detas)
-        } catch (error) {
-            console.error('Error fetching data', error);
+    const overview = async () => {
+        const response = await movieDetail.overview;
+        const overV = response.slice(0, 200);
+
+        if (expanded === true) {
+            setOver(overV + "...");
+        } else {
+            setOver(response);
         }
-    };
+
+    }
+    useEffect(() => {
+        overview()
+    })
+
 
     useEffect(() => {
-        fatchMovie();
-        MovieTrailer();
-        MovieCast();
+
+        allData();
     }, []);
 
 
@@ -114,10 +124,8 @@ function Movie() {
             items: 3
         }
     };
-    // read more
-    const toggleExpanded = () => {
-        setExpanded(!expanded);
-    };
+
+
     // Download link 
     const dowloadLink = Download.find(movie => movie.movieID === id)
 
@@ -126,7 +134,7 @@ function Movie() {
 
         <div>
             <Helmet>
-                <title>{`movie/${movieDetail.title}`}</title>
+                <title>{`${catagory}/${!movieDetail.title ? movieDetail.name : movieDetail.title}`}</title>
             </Helmet>
             <Card className='min-h-[100vh] max-h-screen bg-black relative ' >
                 <Card.Img className='max-h-screen !rounded-none object-cover h-screen' src={`https://image.tmdb.org/t/p/original${movieDetail.backdrop_path}`} />
@@ -137,19 +145,19 @@ function Movie() {
                     <Container className="anim">
 
                         <Card.Title className='max-w-[80%]'>
-                            <h1 >{movieDetail.title}</h1>
+                            <h1 >{!movieDetail.title ? movieDetail.name : movieDetail.title}</h1>
                             <h6>{movieDetail.tagline}</h6>
                         </Card.Title>
                         <Card.Body className='!px-0 '>
                             <pre className='text-yellow-600' >Orignal Language | {movieDetail.original_language} </pre>
                             <Card.Text className='max-w-2xl'>
-                                <p> {expanded ? movieDetail.overview : `${movieDetail.overview.slice(0, 200)}`}
-                                    <button className='backdrop-blur-sm bg-white/10 rounded-md' onClick={toggleExpanded}>
-                                        {expanded ? 'Read Less' : 'Read More'}
+                                <p> {over}
+                                    <button className='px-2 rounded-md backdrop-blur-sm bg-white/10 ms-2' onClick={toggleExpanded}>
+                                        {expanded ? 'Read More' : 'Read Less'}
                                     </button></p>
                             </Card.Text>
-                            <pre className='backdrop-blur-sm text-white/70 rounded-md text-lg block w-fit' >IMDB {movieDetail.vote_average} 2h 22min 2023</pre>
-                            <div className='flex space-x-4 text-sm underline font-bold sm:text-lg md:text-lg xl:text-lg 2xl:text-lg max-w-sm' >
+                            <pre className='block text-lg rounded-md backdrop-blur-sm text-white/70 w-fit' >IMDB {movieDetail.vote_average} 2h 22min 2023</pre>
+                            <div className='flex max-w-sm space-x-4 text-sm font-bold underline sm:text-lg md:text-lg xl:text-lg 2xl:text-lg' >
                                 {
                                     movieDetail.genres?.map((gener) => {
 
@@ -184,13 +192,13 @@ function Movie() {
 
                                 </Modal.Header>
                                 <Modal.Body>
-                                    <iframe className='w-full h-full object-cover' src={`https://www.youtube.com/embed/${trailer}`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ></iframe>
+                                    <iframe className='object-cover w-full h-full' src={`https://www.youtube.com/embed/${trailer}`} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ></iframe>
                                 </Modal.Body>
                             </Modal>
 
                             <button variant="primary" onClick={() => setShow(true)} className='absolute top-28 left-[50%] red flex align-middle 2xl:left-[70%] xl:left-[70%] lg:left-[70%] sm:left-[70%]'>
                                 <div className=''  >
-                                    <svg id="Vector" className='h-20 w-20' width="150" height="150" viewBox="0 0 408 408" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <svg id="Vector" className='w-20 h-20' width="150" height="150" viewBox="0 0 408 408" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <g filter="url(#filter0_d_2_8)">
                                             <path d="M151.25 63.4144L312.152 200.505L151.25 338.392V91H146.25V339.479C146.25 343.324 150.759 345.398 153.678 342.896L315.85 203.921C317.949 202.122 317.945 198.872 315.84 197.079L153.668 58.9062C150.747 56.4169 146.25 58.4932 146.25 62.3315V73H151.25V63.4144ZM401.5 200C401.5 309.076 313.076 397.5 204 397.5C94.9238 397.5 6.5 309.076 6.5 200C6.5 90.9238 94.9238 2.5 204 2.5C313.076 2.5 401.5 90.9238 401.5 200Z" stroke="#FF0000" stroke-width="5" shape-rendering="crispEdges" stroke-dasharray="0,0,0,2645.443603515625"><animate attributeType="XML" attributeName="stroke-dasharray" repeatCount="1" dur="4.166666666666667s" values="0,0,0,2645.443603515625; 
            0,1322.7218017578125,1322.7218017578125,0; 
@@ -211,7 +219,7 @@ function Movie() {
                                         <setting >{`"type":"direct","speed":12,"random":1,"shift":1,"size":1,"rupture":50`}</setting></svg>
 
                                 </div>
-                                <div className='text-2xl mt-7 ms-2 text-white' >Trailer</div>
+                                <div className='text-2xl text-white mt-7 ms-2' >Trailer</div>
                             </button>
                         </Card.Body>
                     </Container>
@@ -221,17 +229,17 @@ function Movie() {
             </Card>
             <Container>
                 <div  >
-                    <p className='my-3 text-white text-xl'>Cast</p>
+                    <p className='my-3 text-xl text-white'>Cast</p>
                     <Carousel responsive={responsive} className='my-3' >
                         {
-                            cast.map((item, i) => {
+                            movieCast.map((item, i) => {
                                 return (<>
-                                    <div key={i} className='relative w-full h-full rounded-md overflow-hidden ' >
+                                    <div key={i} className='relative w-full h-full overflow-hidden rounded-md ' >
 
                                         <div className='text-white '  >
 
                                             <img className='rounded-md shadow-2xl shadow-red-600' src={`https://image.tmdb.org/t/p/w200/${item.profile_path}`} alt={item.name} />
-                                            <div className='absolute bottom-0 left-2 text-sm'>
+                                            <div className='absolute bottom-0 text-sm left-2'>
                                                 <h6  >{item.name}</h6>
                                                 <div>{item.character}</div>
                                             </div>
@@ -257,14 +265,15 @@ function Movie() {
 
                 <Tabs
                     defaultActiveKey="Related"
-                    className='mb-3 justify-center '
+                    className='justify-center mb-3 '
                 >
                     <Tab id='tab1' eventKey="Related" title="Related" >
 
                         <MovieCard
+                            catagory={catagory}
                             apiUrl={{
-                                url: `https://api.themoviedb.org/3/movie/${id}/recommendations?api_key=d8d56359455a8c1f58621b1cc4c24eef`,
-                                head: "Related Movies"
+                                url: `https://api.themoviedb.org/3/${catagory}/${id}/recommendations?api_key=d8d56359455a8c1f58621b1cc4c24eef`,
+                                head: `Related ${catagory}`
                             }}
                         />
 
@@ -298,11 +307,11 @@ function Movie() {
                             </li>
                             <li>
                                 <h5>Rvenue</h5>
-                                <p>{movieDetail.revenue}</p>
+                                <p>Rs. {movieDetail.revenue}</p>
                             </li>
                             <li>
                                 <h5>Budget</h5>
-                                <p>{movieDetail.budget}</p>
+                                <p>Rs. {movieDetail.budget}</p>
                             </li>
                         </ul>
 

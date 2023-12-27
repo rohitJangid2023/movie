@@ -1,10 +1,11 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { Navbar, Container, Nav, Offcanvas } from 'react-bootstrap';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { Navbar, Container } from 'react-bootstrap';
 import './Search.css'
 import { Link } from 'react-router-dom';
 import icon from '../../Assets/img/iconMovie.png'
+import axios from 'axios';
 
 
 
@@ -32,14 +33,7 @@ function TopNav() {
 
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [movieId, setMovieId] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (query.trim() !== '') {
-      searchMovie(query);
-    }
-  };
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
@@ -50,59 +44,31 @@ function TopNav() {
     }
   };
 
-  const fetchSuggestions = (query) => {
-    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.results.length > 0) {
-          const movieSuggestions = data.results.slice(0, 5).map(movie => ({
-            id: movie.id,
-            title: movie.title
-          }));
-          setSuggestions(movieSuggestions);
-        } else {
-          setSuggestions([]);
-        }
-      })
-      .catch(error => {
-        console.log('Error:', error);
-        setSuggestions([]);
-      });
+  const fetchSuggestions = async (query) => {
+    try {
+      const res = await axios.get(`https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&query=${query}`)
+      const data = res.data.results;
+      if (data.length > 0) {
+        setSuggestions(data.slice(0, 5));
+      } else if (data.length < 0) {
+        setSuggestions("No Movie or show match")
+      }
+    } catch (error) {
+      console.log("Please Try after some time")
+    }
   };
-
-  const searchMovie = (query) => {
-    fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${query}`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.results.length > 0) {
-          const movieId = data.results[0].id;
-          setMovieId(movieId);
-        } else {
-          setMovieId(null);
-        }
-        setSuggestions([]);
-      })
-      .catch(error => {
-        console.log('Error:', error);
-        setMovieId(null);
-        setSuggestions([]);
-      });
-  };
-
-
 
   const renderSuggestions = () => {
     if (suggestions.length > 0) {
       return (
-        <ul>
-          {suggestions.map(movie => (
-            <li>
-              <Link className='text-white' key={movie.id} to={`/movie/${movie.id}`}>
-                {movie.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+
+        suggestions.map((item, i) => {
+          return (
+            <Link className='block text-white' key={i} to={`/${item.media_type}/${item.id || item.show_id}`}>{item.title || item.name} </Link>
+
+          )
+        })
+
       );
     }
     else {
@@ -113,61 +79,54 @@ function TopNav() {
 
   return (
     <>
-      {[false].map((expand) => (
-        <Navbar key={expand} bg={scrolled ? "gray" : "transparent"} expand={expand} className={"mb-3 !bg-black red position-fixed top-0 w-full z-50"}>
-          <Container >
-            <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-${expand}`} >
-              <FontAwesomeIcon className='red' icon={faBars} />
-            </Navbar.Toggle>
-            <Link className='me-auto' to={'/'} >
-              <Navbar.Brand className=" red cursor-pointer" >
-                <img className='h-10 w-10' src={icon} alt="" />
-              </Navbar.Brand>
-            </Link>
-            <form id='movieSearch' className='relative' >
-              <div>
-                <input type="search"
-                  value={query}
-                  placeholder='Search Movie....'
-                  onChange={handleInputChange}
-                  className='px-2 text-white bg-gradient-to-r from-red-600 to-transparent bg-transparent rounded-sm
+
+      <>
+        <nav className={`mb-3 !bg-black red block position-fixed top-0 w-full z-50 py-2 ${!scrolled && "bg-transparent !shadow-none"}`}>
+
+          <Container className='flex items-center justify-between' >
+
+            <div className='flex items-center'>
+
+              <Link className='' to={'/'} >
+                <Navbar.Brand className="cursor-pointer red" >
+                  <img className='w-10 h-10' src={icon} alt="" />
+                </Navbar.Brand>
+              </Link>
+
+              <Link onClick={setTimeout({}, 100)} className='hidden px-2 font-semibold text-red-600 rounded-md sm:block lg:block 2xl:block md:block xl:block ms-3 hover:bg-red-600 hover:text-black' to={'/tv'} >TV Shows</Link>
+              <Link onClick={setTimeout({}, 100)} className='hidden px-2 font-semibold text-red-600 rounded-md sm:block lg:block 2xl:block md:block xl:blockpx-2 ms-3 hover:bg-red-600 hover:text-black' to={'/movie'} >Movies</Link>
+
+            </div>
+
+
+            <div>
+              <form id='movieSearch' className='relative' >
+                <div>
+                  <input type="search"
+                    value={query}
+                    placeholder='Search Movie and shows....'
+                    onChange={handleInputChange}
+                    className='px-2 text-white bg-gradient-to-r from-red-600 to-transparent bg-transparent rounded-sm
                 w-[20rem] max-w-[9.5rem] sm:max-w-[20rem] md:max-w-[20rem] xl:max-w-[20rem] 2xl:max-w-[20rem]'
-                />
-                <FontAwesomeIcon className='ms-2' icon={faMagnifyingGlass} />
+                  />
+                  <FontAwesomeIcon className='ms-2' icon={faMagnifyingGlass} />
 
-              </div>
+                </div>
 
-              <div className='absolute ' >{renderSuggestions()}</div>
-            </form>
-
-
-
-
-            <Navbar.Offcanvas
-              id={`offcanvasNavbar-expand-${expand}`}
-              aria-labelledby={`offcanvasNavbarLabel-expand-${expand}`}
-              placement="start"
-              className="bg-black"
-
-            >
-              <Offcanvas.Header closeButton>
-                <Offcanvas.Title >
-
-
-
-
-                </Offcanvas.Title>
-              </Offcanvas.Header>
-              <Offcanvas.Body className='relative'>
-
-                <Link to="/bolywood" className='block text-red-500 span' >BOLLYWOOD</Link>
-                <Link to="/holywood" className='block text-red-500 span2' >HOLLYWOOD</Link>
-
-              </Offcanvas.Body>
-            </Navbar.Offcanvas>
+                <div className='absolute'>{renderSuggestions()}</div>
+              </form>
+            </div>
           </Container>
-        </Navbar>
-      ))}
+          <Container className='mt-3 sm:hidden lg:hidden 2xl:hidden md:hidden xl:hidden '>
+            <Link onClick={setTimeout({}, 100)} className='px-2 font-semibold text-red-600 rounded-md hover:bg-red-600 hover:text-black' to={'/tv'} >TV Shows</Link>
+            <Link onClick={setTimeout({}, 100)} className='px-2 font-semibold text-red-600 rounded-md ms-3 hover:bg-red-600 hover:text-black' to={'/'} >Movies</Link>
+
+          </Container>
+
+        </nav>
+
+      </>
+
     </>
   )
 }
